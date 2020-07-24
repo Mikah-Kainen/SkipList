@@ -33,9 +33,65 @@ namespace SkipList
             return currentHeight;
         }
 
-        public void Add(T item)
+        public Node<T> FindNode(T value)
         {
-            throw new NotImplementedException();
+            Node<T> currentNode = Head;
+
+            int currentHeight = Head.Height;
+            while (currentNode.Value.CompareTo(value) != 0)
+            {
+                while (value.CompareTo(currentNode.Children[currentHeight].Value) < 0)
+                {
+                    currentHeight--;
+                }
+                currentNode = currentNode.Children[currentHeight];
+            }
+            return currentNode;
+        }
+
+        public Node<T> FindPreviousNode(T value)
+        {
+            Node<T> currentNode = Head;
+
+            int currentHeight = Head.Height;
+            while (currentHeight >= 0)
+            {
+                while (value.CompareTo(currentNode.Children[currentHeight].Value) < 0)
+                {
+                    currentHeight--;
+                }
+                if(currentNode.Children[currentHeight].Value.Equals(value))
+                {
+                    return currentNode;
+                }
+                currentNode = currentNode.Children[currentHeight];
+            }
+            return null;
+        }
+
+        public void Add(T value)
+        {
+            Node<T> previousNode = FindPreviousNode(value);
+            if(previousNode == null)
+            {
+                previousNode = Head;
+            }
+            int height = previousNode.Height;
+
+            while (height >= 0)
+            {
+                if (previousNode.Children[height].Children[height].Value.CompareTo(value) > 0)
+                {
+                    Node<T> tempHolder = previousNode.Children[height];
+                    previousNode.Children[height] = new Node<T>(value, CreateHeight());
+                    previousNode.Children[height].Children[height] = tempHolder;
+                    height--;
+                }
+                else
+                {
+                    previousNode = previousNode.Children[height].Children[height];
+                }
+            }
         }
 
         public void Clear()
