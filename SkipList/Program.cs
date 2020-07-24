@@ -10,7 +10,7 @@ namespace SkipList
             SkipList<int> list = new SkipList<int>();
             list.Add(5);
             list.Add(10);
-            list.Add(7);
+            //list.Add(7);
             ;
         }
     }
