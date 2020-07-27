@@ -55,7 +55,7 @@ namespace SkipList
             Count++;
             if(Head.Children.Count == 0)
             {
-                for(int i = node.Height; i >= 0; i --)
+                for(int i = 0; i <= node.Height; i ++)
                 {
                     Head.Children.Add(node);
                 }
@@ -66,32 +66,38 @@ namespace SkipList
 
         private void Add(Node<T> node)
         {
-            for(int currentHeight = node.Height; currentHeight >= 0; currentHeight --)
+            for(int currentHeight = 0; currentHeight <= node.Height; currentHeight ++)
             {
                 Node<T> startingNode = Head;
-                while (startingNode.Children.Count < currentHeight)
+                while (startingNode.Children.Count > currentHeight && !startingNode.Children[currentHeight].Equals(node))
                 {
                     if (startingNode.Children[currentHeight].Value.CompareTo(node.Value) > 0)
                     {
                         Node<T> tempHolder = startingNode.Children[currentHeight];
                         startingNode.Children[currentHeight] = node;
-                        node.Children[currentHeight] = tempHolder;
+                        node.Children.Add(tempHolder);
                     }
                     else
                     {
                         startingNode = startingNode.Children[currentHeight];
                     }
                 }
-                startingNode.Children.Add(node);
-                int count = currentHeight;
-                while (startingNode.Children.Count < currentHeight)
+
+                if(startingNode.Children.Count <= currentHeight)
                 {
                     startingNode.Children.Add(node);
-                    count--;
                 }
-                currentHeight = count;
             }
+                //startingNode.Children.Add(node);
+                //int count = currentHeight;
+                //while (startingNode.Children.Count < currentHeight)
+                //{
+                //    startingNode.Children.Add(node);
+                //    count--;
+                //}
+                //currentHeight = count;
         }
+    
 
         //public Node<T> FindPreviousNode(T value)
         //{
