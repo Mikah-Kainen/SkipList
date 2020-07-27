@@ -66,37 +66,69 @@ namespace SkipList
 
         private void Add(Node<T> node)
         {
-            for(int currentHeight = 0; currentHeight <= node.Height; currentHeight ++)
+            Node<T> startingNode = Head;
+            for(int i = 0; i < node.Height; i ++)
             {
-                Node<T> startingNode = Head;
-                while (startingNode.Children.Count > currentHeight && !startingNode.Children[currentHeight].Equals(node))
+                node.Children.Add(new Node<T>(default, 0));
+            }
+            for(int currentHeight = Head.Height; currentHeight >= 0; currentHeight --)
+            {
+                while(startingNode.Children.Count >= currentHeight && !startingNode.Children[currentHeight].Equals(node))
                 {
                     if (startingNode.Children[currentHeight].Value.CompareTo(node.Value) > 0)
                     {
-                        Node<T> tempHolder = startingNode.Children[currentHeight];
-                        startingNode.Children[currentHeight] = node;
-                        node.Children.Add(tempHolder);
+                        if (node.Height <= currentHeight)
+                        {
+                            Node<T> tempHolder = startingNode.Children[currentHeight];
+                            startingNode.Children[currentHeight] = node;
+                            node.Children[currentHeight] = tempHolder;
+                        }
+                        else
+                        {
+                            currentHeight--;
+                        }
                     }
                     else
                     {
                         startingNode = startingNode.Children[currentHeight];
                     }
                 }
-
-                if(startingNode.Children.Count <= currentHeight)
-                {
-                    startingNode.Children.Add(node);
-                }
             }
-                //startingNode.Children.Add(node);
-                //int count = currentHeight;
-                //while (startingNode.Children.Count < currentHeight)
-                //{
-                //    startingNode.Children.Add(node);
-                //    count--;
-                //}
-                //currentHeight = count;
         }
+
+        //private void Add(Node<T> node)
+        //{
+        //    Node<T> startingNode = Head;
+        //    for (int currentHeight = 0; currentHeight <= node.Height; currentHeight ++)
+        //    {
+        //        while (startingNode.Children.Count > currentHeight && !startingNode.Children[currentHeight].Equals(node))
+        //        {
+        //            if (startingNode.Children[currentHeight].Value.CompareTo(node.Value) > 0)
+        //            {
+        //                Node<T> tempHolder = startingNode.Children[currentHeight];
+        //                startingNode.Children[currentHeight] = node;
+        //                node.Children.Add(tempHolder);
+        //            }
+        //            else
+        //            {
+        //                startingNode = startingNode.Children[currentHeight];
+        //            }
+        //        }
+
+        //        if(startingNode.Children.Count <= currentHeight)
+        //        {
+        //            startingNode.Children.Add(node);
+        //        }
+        //    }
+        //        //startingNode.Children.Add(node);
+        //        //int count = currentHeight;
+        //        //while (startingNode.Children.Count < currentHeight)
+        //        //{
+        //        //    startingNode.Children.Add(node);
+        //        //    count--;
+        //        //}
+        //        //currentHeight = count;
+        //}
     
 
         //public Node<T> FindPreviousNode(T value)
