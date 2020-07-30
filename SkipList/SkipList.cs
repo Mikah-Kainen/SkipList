@@ -10,26 +10,33 @@ namespace SkipList
     {
         public int Count { get; private set; }
         public Node<T> Head;
+        public Node<T> Tail;
+
+
 
         public bool IsReadOnly => false;
 
         public SkipList()
         {
             Head = new Node<T>(default, 0);
+            Tail = new Node<T>(default, 0);
+            Head.Children.Add(Tail);
         }
 
         public int CreateHeight()
         {
             Random random = new Random();
             int currentHeight = 0;
-            while (random.Next(0, 2) != 0 && currentHeight <= Head.Height)
+            while (random.Next(0, 2) != 0 && currentHeight < Head.Height)
             {
                 currentHeight++;
             }
-            if(currentHeight > Head.Height)
+            if (currentHeight == Head.Height)
             {
                 Head.UpdateHeight(Head.Height + 1);
+                Head.Children.Add(Tail);
             }
+            Tail.UpdateHeight(Head.Height);
             return currentHeight;
         }
 
@@ -53,9 +60,9 @@ namespace SkipList
         {
             Node<T> node = new Node<T>(value, CreateHeight());
             Count++;
-            if(Head.Children.Count == 0)
+            if (Head.Children.Count == 0)
             {
-                for(int i = 0; i <= node.Height; i ++)
+                for (int i = 0; i <= node.Height; i++)
                 {
                     Head.Children.Add(node);
                 }
@@ -64,141 +71,54 @@ namespace SkipList
             Add(node);
         }
 
-        public void Add(T value)
+        public void Add(T value, int Height)
         {
-
+            Node<T> node = new Node<T>(value, Height);
+            Count++;
+            if (Head.Children[0] == Tail)
+            {
+                Head.Children[0] = node;
+                node.Children.Add(Tail);
+                return;
+            }
+            Add(node);
         }
 
         private void Add(Node<T> node)
         {
-            Node<T> startingNode = Head;
-            Stack<Node<T>> Heads = new Stack<Node<T>>();
+            Node<T> currentNode = Head;
 
-            for(int i = 0; i <= node.Height; i ++)
-            {
-                node.Children.Add(new Node<T>(default, 0));
-            }
             for(int currentHeight = Head.Height - 1; currentHeight >= 0; currentHeight --)
             {
-                while(startingNode.Children.Count > currentHeight && !startingNode.Children[currentHeight].Equals(node))
+                while(currentNode.Children[currentHeight].Value.CompareTo(node.Value) < 0 && currentNode.Children[currentHeight] != Tail)
                 {
-                    if (startingNode.Children[currentHeight].Value.CompareTo(node.Value) > 0)
-                    {
-                        if (node.Height <= currentHeight)
-                        {
-                            Node<T> tempHolder = startingNode.Children[currentHeight];
-                            startingNode.Children[currentHeight] = node;
-                            node.Children[currentHeight] = tempHolder;
-                        }
-                    }
-                    else
-                    {
-                        startingNode = startingNode.Children[currentHeight];
-                    }
+                    currentNode = currentNode.Children[currentHeight];
                 }
-                if(startingNode.Children.Count <= currentHeight)
+                if(currentHeight > node.Height)        {               }
+                else
                 {
-                    Heads.Push(startingNode);
+                    node.Children.Insert(0, currentNode.Children[currentHeight]);
+                    currentNode.Children[currentHeight] = node;
                 }
-            }
-
-            while(Heads.Count > 0)
-            {
-                Heads.Pop().Children.Add(node);
             }
         }
 
-        //private void Add(Node<T> node)
-        //{
-        //    Node<T> startingNode = Head;
-        //    for (int currentHeight = 0; currentHeight <= node.Height; currentHeight ++)
-        //    {
-        //        while (startingNode.Children.Count > currentHeight && !startingNode.Children[currentHeight].Equals(node))
-        //        {
-        //            if (startingNode.Children[currentHeight].Value.CompareTo(node.Value) > 0)
-        //            {
-        //                Node<T> tempHolder = startingNode.Children[currentHeight];
-        //                startingNode.Children[currentHeight] = node;
-        //                node.Children.Add(tempHolder);
-        //            }
-        //            else
-        //            {
-        //                startingNode = startingNode.Children[currentHeight];
-        //            }
-        //        }
-
-        //        if(startingNode.Children.Count <= currentHeight)
-        //        {
-        //            startingNode.Children.Add(node);
-        //        }
-        //    }
-        //        //startingNode.Children.Add(node);
-        //        //int count = currentHeight;
-        //        //while (startingNode.Children.Count < currentHeight)
-        //        //{
-        //        //    startingNode.Children.Add(node);
-        //        //    count--;
-        //        //}
-        //        //currentHeight = count;
-        //}
-    
-
-        //public Node<T> FindPreviousNode(T value)
-        //{
-        //    if(Head.Height == 0)
-        //    {
-        //        return Head;
-        //    }
-        //    Node<T> currentNode = Head;
-
-        //    int currentHeight = Head.Height - 1;
-        //    while (currentHeight >= 0)
-        //    {
-        //        while (currentNode.Children.Count != 0 && value.CompareTo(currentNode.Children[currentHeight].Value) < 0)
-        //        {
-        //            currentHeight--;
-        //        }
-        //        if(currentNode.Children.Count == 0 || currentNode.Children[currentHeight].Value.Equals(value))
-        //        {
-        //            return currentNode;
-        //        }
-        //        currentNode = currentNode.Children[currentHeight];
-        //    }
-        //    return null;
-        //}
-
-        //public void Add(T value)
-        //{
-        //    Node<T> previousNode = FindPreviousNode(value);
-        //    if(previousNode == null)
-        //    {
-        //        throw new Exception("Something Bad Happened Exception");
-        //    }
-        //    else if(previousNode == Head)
-        //    {
-        //        if(Head.Height == 0)
-        //        {
-        //            Head.Children.Add(new Node<T>(value, CreateHeight()));
-        //            return;
-        //        }
-        //    }
-        //    int height = previousNode.Height;
-
-        //    while (height >= 0)
-        //    {
-        //        if (previousNode.Children[height].Children[height].Value.CompareTo(value) > 0)
-        //        {
-        //            Node<T> tempHolder = previousNode.Children[height];
-        //            previousNode.Children[height] = new Node<T>(value, CreateHeight());
-        //            previousNode.Children[height].Children[height] = tempHolder;
-        //            height--;
-        //        }
-        //        else
-        //        {
-        //            previousNode = previousNode.Children[height].Children[height];
-        //        }
-        //    }
-        //}
+        public Node<T> Find(T targetValue)
+        {
+            Node<T> currentNode = Head;
+            for(int currentHeight = Head.Height; currentHeight >= 0; currentHeight --)
+            {
+                while (currentNode.Children[currentHeight].Value.CompareTo(targetValue) < 0 && !currentNode.Children[currentHeight].Equals(Tail))
+                {
+                    currentNode = currentNode.Children[currentHeight];
+                }
+                if(currentNode.Children[currentHeight].Value.Equals(targetValue))
+                {
+                    return currentNode.Children[currentHeight];
+                }
+            }
+            return null;
+        }
 
         public void Clear()
         {
