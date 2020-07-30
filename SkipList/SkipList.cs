@@ -22,11 +22,11 @@ namespace SkipList
         {
             Random random = new Random();
             int currentHeight = 0;
-            while (random.Next(0, 2) != 0 && currentHeight < Head.Height)
+            while (random.Next(0, 2) != 0 && currentHeight <= Head.Height)
             {
                 currentHeight++;
             }
-            if(currentHeight == Head.Height)
+            if(currentHeight > Head.Height)
             {
                 Head.UpdateHeight(Head.Height + 1);
             }
@@ -64,16 +64,23 @@ namespace SkipList
             Add(node);
         }
 
+        public void Add(T value)
+        {
+
+        }
+
         private void Add(Node<T> node)
         {
             Node<T> startingNode = Head;
-            for(int i = 0; i < node.Height; i ++)
+            Stack<Node<T>> Heads = new Stack<Node<T>>();
+
+            for(int i = 0; i <= node.Height; i ++)
             {
                 node.Children.Add(new Node<T>(default, 0));
             }
-            for(int currentHeight = Head.Height; currentHeight >= 0; currentHeight --)
+            for(int currentHeight = Head.Height - 1; currentHeight >= 0; currentHeight --)
             {
-                while(startingNode.Children.Count >= currentHeight && !startingNode.Children[currentHeight].Equals(node))
+                while(startingNode.Children.Count > currentHeight && !startingNode.Children[currentHeight].Equals(node))
                 {
                     if (startingNode.Children[currentHeight].Value.CompareTo(node.Value) > 0)
                     {
@@ -83,16 +90,21 @@ namespace SkipList
                             startingNode.Children[currentHeight] = node;
                             node.Children[currentHeight] = tempHolder;
                         }
-                        else
-                        {
-                            currentHeight--;
-                        }
                     }
                     else
                     {
                         startingNode = startingNode.Children[currentHeight];
                     }
                 }
+                if(startingNode.Children.Count <= currentHeight)
+                {
+                    Heads.Push(startingNode);
+                }
+            }
+
+            while(Heads.Count > 0)
+            {
+                Heads.Pop().Children.Add(node);
             }
         }
 
