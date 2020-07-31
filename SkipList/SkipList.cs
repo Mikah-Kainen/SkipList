@@ -45,9 +45,9 @@ namespace SkipList
             Node<T> currentNode = Head;
 
             int currentHeight = Head.Height;
-            while (currentNode.Value.CompareTo(value) != 0)
+            while (currentNode.Value.CompareTo(value) != 0 && !currentNode.Children[0].Equals(Tail))
             {
-                while (value.CompareTo(currentNode.Children[currentHeight].Value) < 0)
+                while (currentNode.Children[currentHeight].Equals(Tail) || value.CompareTo(currentNode.Children[currentHeight].Value) < 0)
                 {
                     currentHeight--;
                 }
@@ -55,6 +55,64 @@ namespace SkipList
             }
             return currentNode;
         }
+
+        public Node<T> FindPreviousNode(T targetValue)
+        {
+            Node<T> currentNode = Head;
+            Node<T> previousNode = Head;
+
+            int currentHeight = Head.Height;
+            while (currentNode.Value.CompareTo(targetValue) != 0 && !currentNode.Children[0].Equals(Tail))
+            {
+                while (currentNode.Children[currentHeight].Equals(Tail) || targetValue.CompareTo(currentNode.Children[currentHeight].Value) < 0)
+                {
+                    currentHeight--;
+                }
+                previousNode = currentNode;
+                currentNode = currentNode.Children[currentHeight];
+            }
+            return previousNode;
+        }
+
+        private Node<T> FindPreviousNode(Node<T> targetNode, Node<T> startingNode, int startingHeight)
+        {
+            Node<T> currentNode = startingNode;
+            Node<T> previousNode = startingNode;
+
+            int currentHeight = startingHeight;
+            while (!currentNode.Equals(targetNode) && !currentNode.Children[0].Equals(Tail))
+            {
+                while (currentNode.Children[currentHeight].Equals(Tail) || targetNode.Value.CompareTo(currentNode.Children[currentHeight].Value) < 0)
+                {
+                    currentHeight--;
+                }
+                previousNode = currentNode;
+                currentNode = currentNode.Children[currentHeight];
+            }
+            return previousNode;
+        }
+
+        public bool Remove(T targetValue)
+        {
+            Node<T> targetNode = FindNode(targetValue);
+            if(targetNode == Head || targetNode == Tail)
+            {
+                return false;
+            }
+            Node<T> currentNode = Head;
+
+            currentNode = FindPreviousNode(targetNode, currentNode, Head.Height);
+            currentNode.Children[targetNode.Height] = currentNode.Children[targetNode.Height].Children[targetNode.Height];
+
+            for (int currentHeight = targetNode.Height - 1; currentHeight >= 0; currentHeight--)
+            {
+                currentNode = FindPreviousNode(targetNode, currentNode, currentHeight);
+                currentNode.Children[currentHeight] = currentNode.Children[currentHeight].Children[currentHeight];
+            }
+
+            Count--;
+            return true;
+        } 
 
         public void Add(T value)
         {
@@ -103,22 +161,22 @@ namespace SkipList
             }
         }
 
-        public Node<T> Find(T targetValue)
-        {
-            Node<T> currentNode = Head;
-            for(int currentHeight = Head.Height; currentHeight >= 0; currentHeight --)
-            {
-                while (currentNode.Children[currentHeight].Value.CompareTo(targetValue) < 0 && !currentNode.Children[currentHeight].Equals(Tail))
-                {
-                    currentNode = currentNode.Children[currentHeight];
-                }
-                if(currentNode.Children[currentHeight].Value.Equals(targetValue))
-                {
-                    return currentNode.Children[currentHeight];
-                }
-            }
-            return null;
-        }
+        //public Node<T> Find(T targetValue)
+        //{
+        //    Node<T> currentNode = Head;
+        //    for(int currentHeight = Head.Height; currentHeight >= 0; currentHeight --)
+        //    {
+        //        while (currentNode.Children[currentHeight].Value.CompareTo(targetValue) < 0 && !currentNode.Children[currentHeight].Equals(Tail))
+        //        {
+        //            currentNode = currentNode.Children[currentHeight];
+        //        }
+        //        if(currentNode.Children[currentHeight].Value.Equals(targetValue))
+        //        {
+        //            return currentNode.Children[currentHeight];
+        //        }
+        //    }
+        //    return null;
+        //}
 
         public void Clear()
         {
@@ -131,11 +189,6 @@ namespace SkipList
         }
 
         public void CopyTo(T[] array, int arrayIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Remove(T item)
         {
             throw new NotImplementedException();
         }

@@ -33,6 +33,15 @@ namespace SkipList
             list.Add(14);
             list.Add(12);
 
+            list.Remove(7);
+            list.Remove(5);
+            list.Remove(14);
+            list.Remove(12);
+
+            //Node<int> node13 = list.FindPreviousNode(14);
+            //Node<int> node7 = list.FindPreviousNode(8);
+            //Node<int> node5 = list.FindPreviousNode(5);
+            //Node<int> node11 = list.FindPreviousNode(12);
         }
     }
 }
